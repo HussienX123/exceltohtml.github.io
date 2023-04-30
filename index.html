@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Excel to HTML Table</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
+    <style>
+      #input {
+        margin-bottom: 10px;
+      }
+      .words-bank {
+        border-collapse: collapse;
+        width: 100%;
+      }
+      .words-bank td, .words-bank th {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+      }
+      .words-bank tr:nth-child(even){background-color: #f2f2f2;}
+      .words-bank th {
+        padding-top: 12px;
+        padding-bottom: 12px;
+        text-align: left;
+        background-color: #04AA6D;
+        color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <input type="file" id="input">
+    <br>
+    <br>
+    <br>
+    <textarea id="output" rows="35" cols="30"></textarea>
+    <script>
+      var input = document.getElementById('input');
+      var btnConvert = document.getElementById('btnConvert');
+      var output = document.getElementById('output');
+
+      input.addEventListener('change', function() {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+          var data = e.target.result;
+          var workbook = XLSX.read(data, {type: 'binary'});
+          var sheetName = workbook.SheetNames[0];
+          var worksheet = workbook.Sheets[sheetName];
+          var tableHTML = '<table class="words-bank">\n<thead>\n<tr>\n<td>Word</td>\n<td>Meaning</td>\n</tr>\n</thead>\n<tbody>\n';
+          var range = XLSX.utils.decode_range(worksheet['!ref']);
+          for(var i = range.s.r; i <= range.e.r; i++) {
+            var cell1 = worksheet[XLSX.utils.encode_cell({r:i, c:0})];
+            var cell2 = worksheet[XLSX.utils.encode_cell({r:i, c:1})];
+            if(cell1 !== undefined && cell2 !== undefined) {
+              var value1 = cell1.v;
+              var value2 = cell2.v;
+              tableHTML += '<tr>\n<td>' + value1 + '</td>\n<td>' + value2 + '</td>\n</tr>\n';
+            }
+          }
+          tableHTML += '</tbody>\n</table>';
+          output.value = tableHTML;
+        };
+        reader.readAsBinaryString(input.files[0]);
+      });
+    </script>
+
+    <h1>s7s@development</ht>
+  </body>
+</html>
